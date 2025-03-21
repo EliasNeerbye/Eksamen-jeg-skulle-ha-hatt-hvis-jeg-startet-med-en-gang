@@ -1,22 +1,29 @@
 {
-  "name": "eksamenoppgv",
+  "name": "todolist",
   "version": "1.0.0",
-  "description": "No",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "description": "This is todolist",
+  "keywords": [
+    "todo",
+    "list",
+    "todolist"
+  ],
+  "homepage": "https://github.com/EliasNeerbye/Eksamen-jeg-skulle-ha-hatt-hvis-jeg-startet-med-en-gang#readme",
+  "bugs": {
+    "url": "https://github.com/EliasNeerbye/Eksamen-jeg-skulle-ha-hatt-hvis-jeg-startet-med-en-gang/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/EliasNeerbye/Eksamen-jeg-skulle-ha-hatt-hvis-jeg-startet-med-en-gang.git"
   },
-  "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/EliasNeerbye/Eksamen-jeg-skulle-ha-hatt-hvis-jeg-startet-med-en-gang/issues"
+  "author": "Blank",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "homepage": "https://github.com/EliasNeerbye/Eksamen-jeg-skulle-ha-hatt-hvis-jeg-startet-med-en-gang#readme",
   "dependencies": {
+    "argon2": "^0.41.1",
     "connect-mongo": "^5.1.0",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
