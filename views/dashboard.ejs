@@ -440,6 +440,35 @@
           });
       }
     }
+    document.addEventListener('DOMContentLoaded', function() {
+  // Get current day of week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+  const today = new Date().getDay();
+  
+  // Map JavaScript day index to our day names
+  // JavaScript uses 0 for Sunday, but our app uses 'sunday' as the string value
+  const dayMap = {
+    0: 'sunday',   // Sunday
+    1: 'monday',   // Monday
+    2: 'tuesday',  // Tuesday
+    3: 'wednesday',// Wednesday
+    4: 'thursday', // Thursday
+    5: 'friday',   // Friday
+    6: 'saturday'  // Saturday
+  };
+  
+  const currentDay = dayMap[today];
+  
+  // Find the tab for the current day and activate it
+  const currentDayTab = document.getElementById(`${currentDay}-tab`);
+  if (currentDayTab) {
+    // Using Bootstrap 5 Tab API to activate the current day tab
+    const tab = new bootstrap.Tab(currentDayTab);
+    tab.show();
+    
+    // Load tasks for the current day
+    loadTasks(currentDay);
+  }
+});
   </script>
 <%- include('./partials/footer') %>
 </body>

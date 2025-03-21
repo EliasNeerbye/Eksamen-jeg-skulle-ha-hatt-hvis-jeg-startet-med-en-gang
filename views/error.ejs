@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('./partials/header') %>
+<body>
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <div class="card">
+          <div class="card-header bg-danger text-white">
+            <h3 class="mb-0"><%= error %></h3>
+          </div>
+          <div class="card-body">
+            <p class="lead"><%= message %></p>
+            <div class="mt-4">
+              <a href="/" class="btn btn-primary">Back to Home</a>
+              <a href="/login" class="btn btn-outline-secondary ms-2">Login</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<%- include('./partials/footer') %>
+</body>
+</html>
