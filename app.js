@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');  // Import MongoStore
 const path = require('path');
 const dotenv = require('dotenv');
 
@@ -31,7 +32,14 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 24, // 1 day
     secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
     httpOnly: true // Helps prevent XSS attacks
-  }
+  },
+  // Add MongoDB session store
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    ttl: 60 * 60 * 24, // 1 day (in seconds)
+    autoRemove: 'native',
+    collectionName: 'sessions'
+  })
 }));
 
 // Set view engine
