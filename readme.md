@@ -34,76 +34,126 @@
 ### User Model
 
 ```javascript
-const userSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: true,
-        unique: true,
-        trim: true,
+const mongoose = require("mongoose");
+
+const userSchema = new mongoose.Schema(
+    {
+        username: {
+            type: String,
+            required: true,
+            unique: true,
+            trim: true,
+        },
+        password: {
+            type: String,
+            required: true,
+        },
+        isAdmin: {
+            type: Boolean,
+            default: false,
+        },
+        family: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Family",
+        },
     },
-    password: {
-        type: String,
-        required: true,
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    },
-    isAdmin: {
-        type: Boolean,
-        default: false,
-    },
-});
+    { timestamps: true },
+);
+
+const User = mongoose.model("User", userSchema);
+module.exports = User;
 ```
 
 ### Todo Model
 
 ```javascript
-const todoSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: true,
-        trim: true,
+const mongoose = require("mongoose");
+
+const todoSchema = new mongoose.Schema(
+    {
+        title: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        description: {
+            type: String,
+            trim: true,
+        },
+        completed: {
+            type: Boolean,
+            default: false,
+        },
+        completedAt: {
+            type: Date,
+        },
+        day: {
+            type: Number,
+            min: 1,
+            max: 7,
+        },
+        repeats: {
+            type: Boolean,
+            default: false,
+        },
+        repeatPattern: {
+            type: String,
+            enum: ["daily", "weekly", "none"],
+            default: "none",
+        },
+        owner: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
+        familyAccess: {
+            type: Boolean,
+            default: false,
+        },
+        accessLevel: {
+            type: String,
+            enum: ["private", "view", "edit"],
+            default: "private",
+        },
     },
-    description: {
-        type: String,
-        trim: true,
+    {
+        timestamps: true,
     },
-    startTime: {
-        type: Date,
-        required: true,
-    },
-    endTime: {
-        type: Date,
-    },
-    repeats: {
-        type: Boolean,
-        default: false,
-    },
-    repeatPattern: {
-        type: String,
-        enum: ["daily", "weekly", "none"],
-        default: "none",
-    },
-    owner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-    },
-    sharedWith: [
-        {
-            user: {
+);
+
+const Todo = mongoose.model("Todo", todoSchema);
+module.exports = Todo;
+```
+
+### Family model
+
+```javascript
+const mongoose = require("mongoose");
+
+const familySchema = new mongoose.Schema(
+    {
+        name: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        admin: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
+        members: [
+            {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "User",
             },
-            permission: {
-                type: String,
-                enum: ["view", "edit"],
-                default: "view",
-            },
-        },
-    ],
-});
+        ],
+    },
+    { timestamps: true },
+);
+
+const Family = mongoose.model("Family", familySchema);
+module.exports = Family;
 ```
 
 ## 4. Project Structure
