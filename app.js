@@ -63,17 +63,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/todo", todoRoutes);
 app.use("/api/family", familyRoutes);
 
-// Health check endpoint
-app.get("/api/health", (req, res) => {
-    res.status(200).json({ status: "ok", message: "Server is running" });
-});
-
-// 404 handler for API routes
 app.use("/api/*", (req, res) => {
     res.status(404).json({ success: false, message: "API endpoint not found" });
 });
 
-// 404 handler for page routes - render 404 page
 app.use((req, res) => {
     res.status(404).render("404", {
         user: req.session.userId ? { id: req.session.userId } : null,

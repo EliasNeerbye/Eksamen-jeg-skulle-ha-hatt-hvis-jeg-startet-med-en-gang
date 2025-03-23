@@ -1,11 +1,7 @@
 const Todo = require("../models/Todo");
 const User = require("../models/User");
 const Family = require("../models/Family");
-const { hasResourcePermission } = require("../utils/authUtils");
 
-/**
- * Create a new todo
- */
 exports.createTodo = async (req, res) => {
     try {
         const {
@@ -22,14 +18,12 @@ exports.createTodo = async (req, res) => {
             return res.status(400).json({ message: "Todo title is required" });
         }
 
-        // Validate day
         if (day && (day < 1 || day > 7)) {
             return res
                 .status(400)
                 .json({ message: "Day must be between 1 and 7" });
         }
 
-        // Create new todo
         const todo = new Todo({
             title,
             description,
@@ -53,43 +47,34 @@ exports.createTodo = async (req, res) => {
     }
 };
 
-/**
- * Get all todos for current user
- */
 exports.getAllTodos = async (req, res) => {
     try {
         const { day } = req.query;
 
-        // Base query - get user's own todos
         let query = { owner: req.userId };
 
-        // Filter by day if specified
         if (day) {
             query.day = parseInt(day);
         }
 
         const todos = await Todo.find(query);
 
-        // If user has a family, get family todos they have access to
         const user = await User.findById(req.userId);
         if (user.family) {
             const family = await Family.findById(user.family);
 
-            // Get family members' todos marked for family access
             const familyTodos = await Todo.find({
                 owner: { $in: family.members },
-                owner: { $ne: req.userId }, // Exclude own todos
+                owner: { $ne: req.userId },
                 familyAccess: true,
             });
 
-            // Filter by access level
             const accessibleTodos = familyTodos.filter((todo) => {
                 return (
                     todo.accessLevel === "view" || todo.accessLevel === "edit"
                 );
             });
 
-            // Combine with user's own todos
             return res.status(200).json({
                 todos: [...todos, ...accessibleTodos],
             });
@@ -104,9 +89,6 @@ exports.getAllTodos = async (req, res) => {
     }
 };
 
-/**
- * Get a specific todo by ID
- */
 exports.getTodoById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -116,12 +98,10 @@ exports.getTodoById = async (req, res) => {
             return res.status(404).json({ message: "Todo not found" });
         }
 
-        // Check if user has permission to view this todo
         if (todo.owner.toString() === req.userId.toString()) {
             return res.status(200).json({ todo });
         }
 
-        // Check if it's a family todo and user has access
         if (todo.familyAccess) {
             const user = await User.findById(req.userId);
             const todoOwner = await User.findById(todo.owner);
@@ -146,9 +126,6 @@ exports.getTodoById = async (req, res) => {
     }
 };
 
-/**
- * Update a todo
- */
 exports.updateTodo = async (req, res) => {
     try {
         const { id } = req.params;
@@ -160,9 +137,7 @@ exports.updateTodo = async (req, res) => {
             return res.status(404).json({ message: "Todo not found" });
         }
 
-        // Check permission to update
         if (todo.owner.toString() === req.userId.toString()) {
-            // Owner can update any field
             const updatedTodo = await Todo.findByIdAndUpdate(id, updates, {
                 new: true,
             });
@@ -172,7 +147,6 @@ exports.updateTodo = async (req, res) => {
             });
         }
 
-        // Check if it's a family todo with edit access
         if (todo.familyAccess && todo.accessLevel === "edit") {
             const user = await User.findById(req.userId);
             const todoOwner = await User.findById(todo.owner);
@@ -182,14 +156,12 @@ exports.updateTodo = async (req, res) => {
                 todoOwner.family &&
                 user.family.toString() === todoOwner.family.toString()
             ) {
-                // Family members with edit access can only update specific fields
                 const allowedUpdates = [
                     "completed",
                     "completedAt",
                     "description",
                 ];
 
-                // Filter out disallowed fields
                 const filteredUpdates = {};
                 for (const key of allowedUpdates) {
                     if (updates[key] !== undefined) {
@@ -218,9 +190,6 @@ exports.updateTodo = async (req, res) => {
     }
 };
 
-/**
- * Delete a todo
- */
 exports.deleteTodo = async (req, res) => {
     try {
         const { id } = req.params;
@@ -230,7 +199,6 @@ exports.deleteTodo = async (req, res) => {
             return res.status(404).json({ message: "Todo not found" });
         }
 
-        // Only owner can delete
         if (todo.owner.toString() !== req.userId.toString()) {
             return res.status(403).json({
                 message: "You do not have permission to delete this todo",
@@ -246,9 +214,6 @@ exports.deleteTodo = async (req, res) => {
     }
 };
 
-/**
- * Toggle todo completion status
- */
 exports.toggleComplete = async (req, res) => {
     try {
         const { id } = req.params;
@@ -258,9 +223,7 @@ exports.toggleComplete = async (req, res) => {
             return res.status(404).json({ message: "Todo not found" });
         }
 
-        // Check permission to update
         if (todo.owner.toString() === req.userId.toString()) {
-            // Owner can toggle completion
             todo.completed = !todo.completed;
             todo.completedAt = todo.completed ? new Date() : null;
             await todo.save();
@@ -273,7 +236,6 @@ exports.toggleComplete = async (req, res) => {
             });
         }
 
-        // Check if it's a family todo with edit access
         if (todo.familyAccess && todo.accessLevel === "edit") {
             const user = await User.findById(req.userId);
             const todoOwner = await User.findById(todo.owner);

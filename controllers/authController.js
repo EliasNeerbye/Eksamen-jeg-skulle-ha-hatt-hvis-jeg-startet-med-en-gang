@@ -1,16 +1,11 @@
 const User = require("../models/User");
 const argon2 = require("argon2");
 const validator = require("validator");
-const { createAuthToken } = require("../utils/authUtils");
 
-/**
- * Register a new user
- */
 exports.register = async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        // Validate input
         if (!username || !password) {
             return res
                 .status(400)
@@ -29,7 +24,6 @@ exports.register = async (req, res) => {
             });
         }
 
-        // Check if user already exists
         const existingUser = await User.findOne({ username });
         if (existingUser) {
             return res
@@ -37,10 +31,8 @@ exports.register = async (req, res) => {
                 .json({ message: "Username is already taken" });
         }
 
-        // Hash password
         const hashedPassword = await argon2.hash(password);
 
-        // Create new user
         const user = new User({
             username,
             password: hashedPassword,
@@ -48,7 +40,6 @@ exports.register = async (req, res) => {
 
         await user.save();
 
-        // Create session
         req.session.userId = user._id;
         req.session.isAdmin = user.isAdmin;
 
@@ -69,33 +60,24 @@ exports.register = async (req, res) => {
     }
 };
 
-/**
- * Login an existing user
- */
 exports.login = async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        // Validate input
         if (!username || !password) {
             return res
                 .status(400)
                 .json({ message: "Username and password are required" });
         }
 
-        // Find user
         const user = await User.findOne({ username });
         if (!user) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
-
-        // Verify password
         const isPasswordValid = await argon2.verify(user.password, password);
         if (!isPasswordValid) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
-
-        // Create session
         req.session.userId = user._id;
         req.session.isAdmin = user.isAdmin;
 
@@ -114,9 +96,6 @@ exports.login = async (req, res) => {
     }
 };
 
-/**
- * Logout the current user
- */
 exports.logout = (req, res) => {
     try {
         req.session.destroy((err) => {
@@ -131,10 +110,6 @@ exports.logout = (req, res) => {
         return res.status(500).json({ message: "Server error during logout" });
     }
 };
-
-/**
- * Get current user profile
- */
 exports.getProfile = async (req, res) => {
     try {
         const user = await User.findById(req.userId)
