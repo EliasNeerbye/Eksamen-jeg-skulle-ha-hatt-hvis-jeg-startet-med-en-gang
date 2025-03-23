@@ -622,10 +622,16 @@ header {
 
 .calendar-day.active.has-todos {
     border: 2px solid var(--white);
+    background-color: var(--purple-dark);
 }
 
 .calendar-day.today:not(.active) {
     border: 2px dashed var(--dark-gray);
+}
+
+.calendar-day.today.active {
+    border: 2px solid var(--white);
+    background-color: var(--purple-medium);
 }
 
 /* Calendar Legend */
@@ -721,13 +727,17 @@ header {
     animation: pulse 0.5s;
 }
 
-/* Toggle for shared todos */
+/* Toggle for shared and completed todos */
 .toggle-container {
     display: flex;
     align-items: center;
-    margin-top: 2rem;
-    padding-top: 2rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
     border-top: 1px solid var(--medium-gray);
+}
+
+.toggle-container:first-of-type {
+    margin-top: 2rem;
 }
 
 .toggle-label {

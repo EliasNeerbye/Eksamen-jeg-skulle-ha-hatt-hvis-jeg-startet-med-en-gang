@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const confirmDeleteBtn = document.querySelector(".btn-confirm-delete");
     const dateDisplay = document.getElementById("current-date");
     const includeSharedToggle = document.getElementById("include-shared");
+    const showCompletedToggle = document.getElementById("show-completed");
     const prevDayBtn = document.getElementById("prev-day");
     const nextDayBtn = document.getElementById("next-day");
     const todayBtn = document.getElementById("today-btn");
@@ -135,7 +136,14 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const data = await response.json();
-            const todos = data.combined || [];
+            let todos = data.combined || [];
+
+            // Filter completed todos if the toggle is unchecked
+            const showCompleted =
+                showCompletedToggle && showCompletedToggle.checked;
+            if (!showCompleted) {
+                todos = todos.filter((todo) => !todo.completed);
+            }
 
             todoList.innerHTML = "";
 
@@ -407,6 +415,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (includeSharedToggle) {
         includeSharedToggle.addEventListener("change", loadTodos);
+    }
+
+    if (showCompletedToggle) {
+        showCompletedToggle.addEventListener("change", loadTodos);
     }
 
     if (prevDayBtn) {
