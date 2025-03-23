@@ -203,13 +203,13 @@ header {
 /* Todo List Styles */
 .todo-container {
     display: flex;
-    max-width: 1400px;
+    max-width: 1700px;
     margin: 2rem auto;
     gap: 2rem;
 }
 
 .sidebar {
-    width: 320px;
+    width: 500px;
     background-color: var(--white);
     padding: 2rem;
     border-radius: 10px;
@@ -484,6 +484,7 @@ header {
     grid-template-columns: repeat(7, 1fr);
     gap: 5px;
     text-align: center;
+    width: 100%;
 }
 
 .calendar-day-name {
@@ -494,16 +495,17 @@ header {
 }
 
 .calendar-day {
-    width: 38px;
-    height: 38px;
+    aspect-ratio: 1/1;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s;
-    margin: 0 auto;
     font-size: 0.9rem;
+    margin: 0 auto;
+    width: 38px;
+    height: 38px;
 }
 
 .calendar-day.empty {
@@ -523,6 +525,7 @@ header {
 .calendar-day.has-todos {
     border: 2px solid var(--turquoise-medium);
     font-weight: 600;
+    background-color: rgba(64, 196, 196, 0.1);
 }
 
 .calendar-day.active.has-todos {
@@ -952,11 +955,6 @@ input:checked + .toggle-slider:before {
         width: 100%;
         margin-right: 0;
         margin-bottom: 2rem;
-    }
-
-    .calendar-day {
-        width: 36px;
-        height: 36px;
     }
 }
 

@@ -4,9 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const familyList = document.getElementById("family-list");
     const pendingInvitesList = document.getElementById("pending-invites");
     const inviteForm = document.getElementById("invite-form");
-    const shareModal = document.getElementById("share-modal");
     const shareModalOverlay = document.querySelector(".share-modal-overlay");
-    const closeShareModalBtn = document.querySelector(".share-modal-close");
 
     // State
     let currentTodoId = null;
@@ -29,8 +27,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Attach share modal event listeners
-    if (closeShareModalBtn) {
-        closeShareModalBtn.addEventListener("click", closeShareModal);
+    const closeShareModalButtons =
+        document.querySelectorAll(".share-modal-close");
+    if (closeShareModalButtons.length > 0) {
+        closeShareModalButtons.forEach((btn) => {
+            btn.addEventListener("click", closeShareModal);
+        });
     }
 
     if (shareModalOverlay) {

@@ -63,7 +63,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     currentMonth = 11;
                     currentYear--;
                 }
-                updateCalendar();
+                updateCalendarTodos().then(() => {
+                    updateCalendar();
+                });
             });
         }
 
@@ -74,7 +76,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     currentMonth = 0;
                     currentYear++;
                 }
-                updateCalendar();
+                updateCalendarTodos().then(() => {
+                    updateCalendar();
+                });
             });
         }
 
@@ -124,9 +128,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             // If calendar is already displayed, update it
-            if (calendarDays.childNodes.length > 0) {
-                updateCalendarTodoHighlights();
-            }
+            updateCalendarTodoHighlights();
 
             return daysWithTodos;
         } catch (error) {
@@ -202,6 +204,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Update just the todo highlights without redrawing the calendar
     function updateCalendarTodoHighlights() {
+        if (!calendarDays) return;
+
         const dayElements = calendarDays.querySelectorAll(
             ".calendar-day:not(.empty)",
         );

@@ -4,14 +4,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const todoList = document.getElementById("todo-list");
     const newTodoBtn = document.getElementById("new-todo-btn");
     const todoForm = document.getElementById("todo-form");
-    const todoModal = document.getElementById("todo-modal");
-    const closeModalBtn = document.querySelector(".modal-close");
     const modalOverlay = document.querySelector(".modal-overlay");
     const deleteModalOverlay = document.querySelector(".delete-modal-overlay");
     const cancelDeleteBtn = document.querySelector(".btn-cancel-delete");
     const confirmDeleteBtn = document.querySelector(".btn-confirm-delete");
     const dateDisplay = document.getElementById("current-date");
     const includeSharedToggle = document.getElementById("include-shared");
+    includeSharedToggle.checked = true;
 
     // Current selected date (defaults to today)
     let currentDate = new Date();
@@ -82,8 +81,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener("click", closeModal);
+    // Add event listeners to all modal close buttons
+    const closeModalButtons = document.querySelectorAll(".modal-close");
+    if (closeModalButtons.length > 0) {
+        closeModalButtons.forEach((btn) => {
+            btn.addEventListener("click", closeModal);
+        });
     }
 
     if (modalOverlay) {
