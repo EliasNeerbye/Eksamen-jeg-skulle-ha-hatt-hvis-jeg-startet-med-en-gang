@@ -1,4 +1,10 @@
-// Calendar functionality
+// Format date for API (preserving local date)
+function formatDateForAPI(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+} // Calendar functionality
 document.addEventListener("DOMContentLoaded", function () {
     const calendarDays = document.getElementById("calendar-days");
     const calendarMonth = document.getElementById("calendar-month");
@@ -9,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentMonth = new Date().getMonth();
     let currentYear = new Date().getFullYear();
     let selectedDate = new Date();
-    let daysWithTodos = []; // Will store dates that have todos
+    let daysWithTodos = {}; // Will store dates that have todos with count
 
     // Month names
     const months = [
@@ -96,8 +102,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const endOfMonth = new Date(currentYear, currentMonth + 1, 0);
 
             // Format dates for API
-            const startDateStr = startOfMonth.toISOString().split("T")[0];
-            const endDateStr = endOfMonth.toISOString().split("T")[0];
+            const startDateStr = formatDateForAPI(startOfMonth);
+            const endDateStr = formatDateForAPI(endOfMonth);
 
             // Get all todos for the month
             const response = await fetch(
@@ -111,8 +117,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const data = await response.json();
             const allTodos = data.combined || [];
 
-            // Extract unique dates that have todos
-            daysWithTodos = [];
+            // Extract dates that have todos with count
+            daysWithTodos = {};
             allTodos.forEach((todo) => {
                 const todoDate = new Date(todo.dueDate);
                 // Only include if it's in the current month view
@@ -121,8 +127,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     todoDate.getFullYear() === currentYear
                 ) {
                     const day = todoDate.getDate();
-                    if (!daysWithTodos.includes(day)) {
-                        daysWithTodos.push(day);
+                    if (!daysWithTodos[day]) {
+                        daysWithTodos[day] = 1;
+                    } else {
+                        daysWithTodos[day]++;
                     }
                 }
             });
@@ -133,7 +141,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return daysWithTodos;
         } catch (error) {
             console.error("Error fetching todos for month:", error);
-            return [];
+            return {};
         }
     }
 
@@ -187,13 +195,30 @@ document.addEventListener("DOMContentLoaded", function () {
             // Mark today's date
             const isToday = isCurrentMonth && day === todayDate;
 
-            // Mark days with todos
-            const hasTodos = daysWithTodos.includes(day);
+            // Mark days with todos and add count badge
+            const todoCount = daysWithTodos[day] || 0;
+            const hasTodos = todoCount > 0;
 
             // Apply classes
             if (isSelected) dayElement.classList.add("active");
             if (isToday) dayElement.classList.add("today");
-            if (hasTodos) dayElement.classList.add("has-todos");
+
+            if (hasTodos) {
+                dayElement.classList.add("has-todos");
+
+                // Add todo count as a badge
+                const todoCountBadge = document.createElement("span");
+                todoCountBadge.className = "todo-count-badge";
+                todoCountBadge.textContent = todoCount;
+                dayElement.appendChild(todoCountBadge);
+
+                // Add intensity class based on number of todos
+                if (todoCount >= 5) {
+                    dayElement.classList.add("has-many-todos");
+                } else if (todoCount >= 3) {
+                    dayElement.classList.add("has-several-todos");
+                }
+            }
 
             // Add click event to select date
             dayElement.addEventListener("click", () => selectDate(day));
@@ -212,12 +237,37 @@ document.addEventListener("DOMContentLoaded", function () {
 
         dayElements.forEach((dayEl) => {
             const day = parseInt(dayEl.textContent, 10);
-            const hasTodos = daysWithTodos.includes(day);
+            const todoCount = daysWithTodos[day] || 0;
+            const hasTodos = todoCount > 0;
+
+            // Remove existing badges
+            const existingBadge = dayEl.querySelector(".todo-count-badge");
+            if (existingBadge) {
+                dayEl.removeChild(existingBadge);
+            }
+
+            // Remove all todo-related classes
+            dayEl.classList.remove(
+                "has-todos",
+                "has-several-todos",
+                "has-many-todos",
+            );
 
             if (hasTodos) {
                 dayEl.classList.add("has-todos");
-            } else {
-                dayEl.classList.remove("has-todos");
+
+                // Add todo count as a badge
+                const todoCountBadge = document.createElement("span");
+                todoCountBadge.className = "todo-count-badge";
+                todoCountBadge.textContent = todoCount;
+                dayEl.appendChild(todoCountBadge);
+
+                // Add intensity class based on number of todos
+                if (todoCount >= 5) {
+                    dayEl.classList.add("has-many-todos");
+                } else if (todoCount >= 3) {
+                    dayEl.classList.add("has-several-todos");
+                }
             }
         });
     }
@@ -225,7 +275,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Select a date on the calendar
     function selectDate(day) {
         selectedDate = new Date(currentYear, currentMonth, day);
-        const formattedDate = selectedDate.toISOString().split("T")[0];
+        const formattedDate = formatDateForAPI(selectedDate);
 
         // Update active class on calendar
         const calendarDayElements =
@@ -240,21 +290,40 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        // Update the main date display
-        if (window.currentDate) {
-            window.currentDate = selectedDate;
-        }
-
-        if (window.formattedDate) {
-            window.formattedDate = formattedDate;
-        }
-
-        // Update date display
+        // Update the main date in todos.js
         if (
-            window.updateDateDisplay &&
-            typeof window.updateDateDisplay === "function"
+            window.setCurrentDate &&
+            typeof window.setCurrentDate === "function"
         ) {
-            window.updateDateDisplay();
+            window.setCurrentDate(selectedDate);
+        } else {
+            // Fallback direct assignment (less ideal)
+            if (window.currentDate) {
+                window.currentDate = new Date(selectedDate);
+            }
+            if (window.formattedDate) {
+                window.formattedDate = formattedDate;
+            }
+            // Update date display
+            if (
+                window.updateDateDisplay &&
+                typeof window.updateDateDisplay === "function"
+            ) {
+                window.updateDateDisplay();
+            }
+        }
+
+        // Trigger animation effect on selection
+        const selectedDayEl = Array.from(calendarDayElements).find(
+            (el) =>
+                parseInt(el.textContent) === day &&
+                !el.classList.contains("empty"),
+        );
+        if (selectedDayEl) {
+            selectedDayEl.classList.add("pulse-animation");
+            setTimeout(() => {
+                selectedDayEl.classList.remove("pulse-animation");
+            }, 500);
         }
 
         // Reload todos for the selected date
@@ -266,20 +335,41 @@ document.addEventListener("DOMContentLoaded", function () {
     // Make functions available globally
     window.updateCalendarTodos = updateCalendarTodos;
     window.selectCalendarDate = function (date) {
+        // Create a new date object to avoid reference issues
+        const newDate = new Date(date);
+
         // Only update if date is in current month view
         if (
-            date.getMonth() === currentMonth &&
-            date.getFullYear() === currentYear
+            newDate.getMonth() === currentMonth &&
+            newDate.getFullYear() === currentYear
         ) {
-            selectDate(date.getDate());
+            selectDate(newDate.getDate());
         } else {
             // Change month view and then select date
-            currentMonth = date.getMonth();
-            currentYear = date.getFullYear();
-            selectedDate = date;
+            currentMonth = newDate.getMonth();
+            currentYear = newDate.getFullYear();
+            selectedDate = new Date(newDate);
 
             updateCalendarTodos().then(() => {
                 updateCalendar();
+
+                // Make sure to select the date after the calendar is updated
+                const dayElements = calendarDays.querySelectorAll(
+                    ".calendar-day:not(.empty)",
+                );
+                dayElements.forEach((dayEl) => {
+                    if (parseInt(dayEl.textContent) === newDate.getDate()) {
+                        dayEl.classList.add("active");
+                    }
+                });
+
+                // Also make sure to update the current date in todos.js
+                if (
+                    window.setCurrentDate &&
+                    typeof window.setCurrentDate === "function"
+                ) {
+                    window.setCurrentDate(newDate);
+                }
             });
         }
     };

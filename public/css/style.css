@@ -6,6 +6,15 @@
     --rose-light: #f7cac9;
     --rose-medium: #e8a3a1;
     --rose-dark: #c97c7a;
+    --teal-light: #5edbcc;
+    --teal-medium: #3cbbb1;
+    --teal-dark: #279386;
+    --purple-light: #d0a9e5;
+    --purple-medium: #9b6dc6;
+    --purple-dark: #6c4097;
+    --coral-light: #ffb7a8;
+    --coral-medium: #ff9180;
+    --coral-dark: #ff6a53;
     --white: #ffffff;
     --light-gray: #f8f9fa;
     --medium-gray: #e0e0e0;
@@ -55,6 +64,11 @@ header {
     font-weight: bold;
     text-decoration: none;
     color: var(--white);
+    transition: all 0.3s ease;
+}
+
+.logo:hover {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
 }
 
 .nav-links {
@@ -72,10 +86,26 @@ header {
     text-decoration: none;
     transition: all 0.3s ease;
     font-size: 1.1rem;
+    position: relative;
+}
+
+.nav-links a::after {
+    content: "";
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--white);
+    transition: width 0.3s ease;
+}
+
+.nav-links a:hover::after {
+    width: 100%;
 }
 
 .nav-links a:hover {
-    color: var(--rose-light);
+    color: var(--white);
 }
 
 .username {
@@ -186,6 +216,14 @@ header {
     border-radius: 8px;
     display: none;
     font-weight: 500;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+.feedback.feedback-visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .feedback.error {
@@ -265,6 +303,7 @@ header {
 
 .todo-nav button:hover {
     background-color: var(--medium-gray);
+    transform: translateY(-2px);
 }
 
 .todo-nav button i {
@@ -289,7 +328,14 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: transform 0.2s, box-shadow 0.3s;
+    transition: transform 0.2s, box-shadow 0.3s, opacity 0.3s;
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.todo-item-visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .todo-item:hover {
@@ -473,6 +519,7 @@ header {
 
 .calendar-nav button:hover {
     background-color: var(--medium-gray);
+    transform: translateY(-2px);
 }
 
 .calendar-days-wrapper {
@@ -482,7 +529,7 @@ header {
 .calendar-days {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
+    gap: 8px;
     text-align: center;
     width: 100%;
 }
@@ -501,11 +548,13 @@ header {
     justify-content: center;
     border-radius: 50%;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s;
     font-size: 0.9rem;
     margin: 0 auto;
     width: 38px;
     height: 38px;
+    position: relative;
+    user-select: none;
 }
 
 .calendar-day.empty {
@@ -514,18 +563,61 @@ header {
 
 .calendar-day:not(.empty):hover {
     background-color: var(--medium-gray);
+    transform: translateY(-3px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .calendar-day.active {
     background-color: var(--turquoise-medium);
     color: var(--white);
     font-weight: 600;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(64, 196, 196, 0.3);
 }
 
+.calendar-day.active:hover {
+    background-color: var(--turquoise-dark);
+}
+
+/* New todo styling with count badge */
 .calendar-day.has-todos {
-    border: 2px solid var(--turquoise-medium);
+    border: 2px solid var(--teal-medium);
     font-weight: 600;
-    background-color: rgba(64, 196, 196, 0.1);
+    background-color: rgba(60, 187, 177, 0.1);
+}
+
+.calendar-day.has-several-todos {
+    border: 2px solid var(--purple-medium);
+    background-color: rgba(155, 109, 198, 0.1);
+}
+
+.calendar-day.has-many-todos {
+    border: 2px solid var(--coral-medium);
+    background-color: rgba(255, 145, 128, 0.1);
+}
+
+.todo-count-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--teal-medium);
+    color: white;
+    font-size: 0.7rem;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.has-several-todos .todo-count-badge {
+    background-color: var(--purple-medium);
+}
+
+.has-many-todos .todo-count-badge {
+    background-color: var(--coral-medium);
 }
 
 .calendar-day.active.has-todos {
@@ -534,6 +626,99 @@ header {
 
 .calendar-day.today:not(.active) {
     border: 2px dashed var(--dark-gray);
+}
+
+/* Calendar Legend */
+.calendar-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin: 1.5rem 0;
+    padding: 0.8rem;
+    background-color: var(--light-gray);
+    border-radius: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin: 0.3rem;
+    font-size: 0.85rem;
+}
+
+.legend-marker {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.today-marker {
+    border: 2px dashed var(--dark-gray);
+}
+
+.selected-marker {
+    background-color: var(--turquoise-medium);
+}
+
+.todo-marker {
+    border: 2px solid var(--teal-medium);
+    background-color: rgba(60, 187, 177, 0.1);
+}
+
+/* Keyboard shortcuts */
+.keyboard-shortcuts {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background-color: var(--light-gray);
+    border-radius: 8px;
+}
+
+.keyboard-shortcuts h3 {
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+    color: var(--dark-gray);
+}
+
+.shortcut {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.key {
+    display: inline-block;
+    background-color: var(--white);
+    border: 1px solid var(--medium-gray);
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin-right: 8px;
+    font-family: monospace;
+    font-weight: bold;
+    min-width: 25px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation classes */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(64, 196, 196, 0.7);
+    }
+    70% {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 10px rgba(64, 196, 196, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(64, 196, 196, 0);
+    }
+}
+
+.pulse-animation {
+    animation: pulse 0.5s;
 }
 
 /* Toggle for shared todos */

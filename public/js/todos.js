@@ -10,11 +10,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const confirmDeleteBtn = document.querySelector(".btn-confirm-delete");
     const dateDisplay = document.getElementById("current-date");
     const includeSharedToggle = document.getElementById("include-shared");
-    includeSharedToggle.checked = true;
+    const prevDayBtn = document.getElementById("prev-day");
+    const nextDayBtn = document.getElementById("next-day");
+    const todayBtn = document.getElementById("today-btn");
+
+    if (includeSharedToggle) {
+        includeSharedToggle.checked = true;
+    }
 
     // Current selected date (defaults to today)
     let currentDate = new Date();
-    let formattedDate = currentDate.toISOString().split("T")[0];
+    let formattedDate = formatDateForAPI(currentDate);
     let currentTodoId = null;
     let isEditMode = false;
     let todoToDelete = null;
@@ -27,6 +33,14 @@ document.addEventListener("DOMContentLoaded", function () {
             month: "long",
             day: "numeric",
         });
+    }
+
+    // Format date for API (preserving local date)
+    function formatDateForAPI(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
     }
 
     // Update date display
@@ -123,6 +137,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!todoList) return;
 
         try {
+            todoList.innerHTML = '<li class="loading">Loading todos...</li>';
+
             const includeShared =
                 includeSharedToggle && includeSharedToggle.checked;
             const response = await fetch(
@@ -179,6 +195,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 todoItem.innerHTML = todoContent;
                 todoList.appendChild(todoItem);
+
+                // Add fade-in animation
+                setTimeout(() => {
+                    todoItem.classList.add("todo-item-visible");
+                }, 50 * todos.indexOf(todo));
 
                 // Add event listeners for todo actions
                 const completeBtn = todoItem.querySelector(".complete-btn");
@@ -315,9 +336,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.body.appendChild(feedbackElement);
 
+        // Add entrance animation
+        setTimeout(() => {
+            feedbackElement.classList.add("feedback-visible");
+        }, 10);
+
         // Remove the feedback element after 3 seconds
         setTimeout(() => {
-            feedbackElement.remove();
+            feedbackElement.classList.remove("feedback-visible");
+            setTimeout(() => {
+                feedbackElement.remove();
+            }, 300);
         }, 3000);
     }
 
@@ -385,14 +414,14 @@ document.addEventListener("DOMContentLoaded", function () {
                             "Todo added for a different date. View that date instead?",
                         )
                     ) {
-                        currentDate = new Date(dueDate);
-                        formattedDate = dueDate;
+                        currentDate = new Date(dueDate + "T12:00:00"); // Add time to avoid timezone issues
+                        formattedDate = formatDateForAPI(currentDate);
                         updateDateDisplay();
                         loadTodos();
 
                         // Update calendar if it exists
                         if (typeof selectCalendarDate === "function") {
-                            selectCalendarDate(new Date(dueDate));
+                            selectCalendarDate(currentDate);
                         }
                     }
                 }
@@ -414,14 +443,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Navigation buttons
-    const prevDayBtn = document.getElementById("prev-day");
-    const nextDayBtn = document.getElementById("next-day");
-    const todayBtn = document.getElementById("today-btn");
-
     if (prevDayBtn) {
         prevDayBtn.addEventListener("click", function () {
             currentDate.setDate(currentDate.getDate() - 1);
-            formattedDate = currentDate.toISOString().split("T")[0];
+            formattedDate = formatDateForAPI(currentDate);
             updateDateDisplay();
             loadTodos();
 
@@ -435,7 +460,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (nextDayBtn) {
         nextDayBtn.addEventListener("click", function () {
             currentDate.setDate(currentDate.getDate() + 1);
-            formattedDate = currentDate.toISOString().split("T")[0];
+            formattedDate = formatDateForAPI(currentDate);
             updateDateDisplay();
             loadTodos();
 
@@ -449,7 +474,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (todayBtn) {
         todayBtn.addEventListener("click", function () {
             currentDate = new Date();
-            formattedDate = currentDate.toISOString().split("T")[0];
+            formattedDate = formatDateForAPI(currentDate);
             updateDateDisplay();
             loadTodos();
 
@@ -460,11 +485,69 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Add keyboard navigation
+    document.addEventListener("keydown", function (e) {
+        // Only respond to keyboard shortcuts if we're on the todo page
+        if (!todoList) return;
+
+        // Left arrow: previous day
+        if (e.key === "ArrowLeft" && !e.ctrlKey && !e.metaKey) {
+            if (prevDayBtn) prevDayBtn.click();
+        }
+
+        // Right arrow: next day
+        else if (e.key === "ArrowRight" && !e.ctrlKey && !e.metaKey) {
+            if (nextDayBtn) nextDayBtn.click();
+        }
+
+        // "n" key: new todo
+        else if (e.key === "n" && !e.ctrlKey && !e.metaKey) {
+            if (newTodoBtn) newTodoBtn.click();
+        }
+
+        // "t" key: today
+        else if (e.key === "t" && !e.ctrlKey && !e.metaKey) {
+            if (todayBtn) todayBtn.click();
+        }
+
+        // "Escape" key: close active modals
+        else if (e.key === "Escape") {
+            // Check for open modals and close them
+            if (modalOverlay && modalOverlay.classList.contains("active")) {
+                closeModal();
+            } else if (
+                deleteModalOverlay &&
+                deleteModalOverlay.classList.contains("active")
+            ) {
+                closeDeleteModal();
+            } else if (document.querySelector(".share-modal-overlay.active")) {
+                // Call close share modal function if defined
+                if (typeof closeShareModal === "function") {
+                    closeShareModal();
+                } else {
+                    // Fallback: directly remove the active class
+                    document
+                        .querySelector(".share-modal-overlay.active")
+                        .classList.remove("active");
+                }
+            }
+        }
+    });
+
+    // Set current date function (for synchronization with calendar)
+    function setCurrentDate(date) {
+        // Create a new date object to avoid reference issues
+        currentDate = new Date(date);
+        formattedDate = formatDateForAPI(currentDate);
+        updateDateDisplay();
+    }
+
     // Make functions available globally
     window.loadTodos = loadTodos;
     window.currentDate = currentDate;
     window.formattedDate = formattedDate;
     window.updateDateDisplay = updateDateDisplay;
+    window.setCurrentDate = setCurrentDate;
 
     // Initial load of todos
     if (todoList) {
