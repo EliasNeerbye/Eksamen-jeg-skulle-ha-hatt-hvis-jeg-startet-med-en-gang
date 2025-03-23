@@ -1,34 +1,27 @@
 {
   "name": "todolist",
   "version": "1.0.0",
-  "description": "This is todolist",
-  "keywords": [
-    "todo",
-    "list",
-    "todolist"
-  ],
-  "homepage": "https://github.com/EliasNeerbye/Eksamen-jeg-skulle-ha-hatt-hvis-jeg-startet-med-en-gang#readme",
-  "bugs": {
-    "url": "https://github.com/EliasNeerbye/Eksamen-jeg-skulle-ha-hatt-hvis-jeg-startet-med-en-gang/issues"
-  },
+  "description": "-   **EJS templates** for all pages:     -   Landing page (/)     -   todo list view (/)     -   Login page (/sign-in)     -   Signup page (/sign-up)     -   Veiledning page (/veiledning) - for authorized users only",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/EliasNeerbye/Eksamen-jeg-skulle-ha-hatt-hvis-jeg-startet-med-en-gang.git"
+    "url": "git@github.com-EliasNeerbye:EliasNeerbye/Eksamen-jeg-skulle-ha-hatt-hvis-jeg-startet-med-en-gang.git"
   },
   "license": "ISC",
   "author": "Blank",
   "type": "commonjs",
-  "main": "server.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "argon2": "^0.41.1",
     "connect-mongo": "^5.1.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
-    "mongoose": "^8.12.1"
+    "mongoose": "^8.12.2",
+    "validator": "^13.12.0"
   }
 }
