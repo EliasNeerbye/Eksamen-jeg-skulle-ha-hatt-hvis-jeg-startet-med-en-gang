@@ -1,6 +1,4 @@
-// Todo management functionality
 document.addEventListener("DOMContentLoaded", function () {
-    // Get DOM elements
     const todoList = document.getElementById("todo-list");
     const newTodoBtn = document.getElementById("new-todo-btn");
     const todoForm = document.getElementById("todo-form");
@@ -18,14 +16,12 @@ document.addEventListener("DOMContentLoaded", function () {
         includeSharedToggle.checked = true;
     }
 
-    // Current selected date (defaults to today)
     let currentDate = new Date();
     let formattedDate = formatDateForAPI(currentDate);
     let currentTodoId = null;
     let isEditMode = false;
     let todoToDelete = null;
 
-    // Format date for display
     function formatDateForDisplay(date) {
         return new Date(date).toLocaleDateString("nb-NO", {
             weekday: "long",
@@ -35,7 +31,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Format date for API (preserving local date)
     function formatDateForAPI(date) {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -43,24 +38,20 @@ document.addEventListener("DOMContentLoaded", function () {
         return `${year}-${month}-${day}`;
     }
 
-    // Update date display
     function updateDateDisplay() {
         if (dateDisplay) {
             dateDisplay.textContent = formatDateForDisplay(currentDate);
         }
     }
 
-    // Initial date display update
     updateDateDisplay();
 
-    // Modal functions
     function openModal() {
         modalOverlay.classList.add("active");
     }
 
     function closeModal() {
         modalOverlay.classList.remove("active");
-        // Reset form
         if (todoForm) {
             todoForm.reset();
             currentTodoId = null;
@@ -71,7 +62,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Delete modal functions
     function openDeleteModal(todoId) {
         todoToDelete = todoId;
         if (deleteModalOverlay) {
@@ -86,16 +76,13 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Attach modal event listeners
     if (newTodoBtn) {
         newTodoBtn.addEventListener("click", function () {
-            // Set default date to current selected date
             document.getElementById("todo-date").value = formattedDate;
             openModal();
         });
     }
 
-    // Add event listeners to all modal close buttons
     const closeModalButtons = document.querySelectorAll(".modal-close");
     if (closeModalButtons.length > 0) {
         closeModalButtons.forEach((btn) => {
@@ -111,7 +98,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Delete modal event listeners
     if (cancelDeleteBtn) {
         cancelDeleteBtn.addEventListener("click", closeDeleteModal);
     }
@@ -132,7 +118,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Load todos for the current date
     async function loadTodos() {
         if (!todoList) return;
 
@@ -152,7 +137,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const data = await response.json();
             const todos = data.combined || [];
 
-            // Clear existing todos
             todoList.innerHTML = "";
 
             if (todos.length === 0) {
@@ -161,7 +145,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            // Add todos to the list
             todos.forEach((todo) => {
                 const isShared = todo.owner && todo.owner._id !== undefined;
                 const todoItem = document.createElement("li");
@@ -196,12 +179,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 todoItem.innerHTML = todoContent;
                 todoList.appendChild(todoItem);
 
-                // Add fade-in animation
                 setTimeout(() => {
                     todoItem.classList.add("todo-item-visible");
                 }, 50 * todos.indexOf(todo));
 
-                // Add event listeners for todo actions
                 const completeBtn = todoItem.querySelector(".complete-btn");
                 const incompleteBtn = todoItem.querySelector(".incomplete-btn");
                 const editBtn = todoItem.querySelector(".edit-btn");
@@ -236,7 +217,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Toggle todo complete status
     async function toggleTodoComplete(todoId, completed) {
         try {
             const response = await fetch(`/api/todos/${todoId}`, {
@@ -251,7 +231,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw new Error("Failed to update todo");
             }
 
-            // Show feedback
             showFeedback(
                 completed
                     ? "Todo marked as complete!"
@@ -259,12 +238,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 "success",
             );
 
-            // Reload todos to reflect the change
             loadTodos();
 
-            // Refresh calendar data if available
             if (typeof updateCalendarTodos === "function") {
-                updateCalendarTodos();
+                updateCalendarTodos().then(() => {
+                    if (typeof updateCalendar === "function") {
+                        updateCalendar();
+                    }
+                });
             }
         } catch (error) {
             console.error("Error toggling todo completion:", error);
@@ -272,9 +253,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Edit todo
     function editTodo(todo) {
-        // Set form fields with todo data
         document.getElementById("todo-title").value = todo.title;
         document.getElementById("todo-description").value =
             todo.description || "";
@@ -282,17 +261,14 @@ document.addEventListener("DOMContentLoaded", function () {
             .toISOString()
             .split("T")[0];
 
-        // Set edit mode
         currentTodoId = todo._id;
         isEditMode = true;
         document.getElementById("todo-form-title").textContent = "Edit Todo";
         document.getElementById("todo-form-submit").textContent = "Update Todo";
 
-        // Open modal
         openModal();
     }
 
-    // Delete todo
     async function deleteTodo(todoId) {
         try {
             const response = await fetch(`/api/todos/${todoId}`, {
@@ -303,18 +279,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw new Error("Failed to delete todo");
             }
 
-            // Close the delete modal
             closeDeleteModal();
 
-            // Show success feedback
             showFeedback("Todo deleted successfully", "success");
 
-            // Reload todos to reflect the change
             loadTodos();
 
-            // Refresh calendar data if available
             if (typeof updateCalendarTodos === "function") {
-                updateCalendarTodos();
+                updateCalendarTodos().then(() => {
+                    if (typeof updateCalendar === "function") {
+                        updateCalendar();
+                    }
+                });
             }
         } catch (error) {
             console.error("Error deleting todo:", error);
@@ -323,7 +299,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Show feedback message
     function showFeedback(message, type) {
         const feedbackElement = document.createElement("div");
         feedbackElement.className = `feedback ${type}`;
@@ -336,12 +311,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.body.appendChild(feedbackElement);
 
-        // Add entrance animation
         setTimeout(() => {
             feedbackElement.classList.add("feedback-visible");
         }, 10);
 
-        // Remove the feedback element after 3 seconds
         setTimeout(() => {
             feedbackElement.classList.remove("feedback-visible");
             setTimeout(() => {
@@ -350,7 +323,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 3000);
     }
 
-    // Handle todo form submit
     if (todoForm) {
         todoForm.addEventListener("submit", async function (e) {
             e.preventDefault();
@@ -370,7 +342,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 let response;
 
                 if (isEditMode && currentTodoId) {
-                    // Update existing todo
                     response = await fetch(`/api/todos/${currentTodoId}`, {
                         method: "PUT",
                         headers: {
@@ -379,7 +350,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         body: JSON.stringify(todoData),
                     });
                 } else {
-                    // Create new todo
                     response = await fetch("/api/todos", {
                         method: "POST",
                         headers: {
@@ -393,10 +363,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     throw new Error("Failed to save todo");
                 }
 
-                // Close modal
                 closeModal();
 
-                // Show success feedback
                 showFeedback(
                     isEditMode
                         ? "Todo updated successfully"
@@ -404,31 +372,31 @@ document.addEventListener("DOMContentLoaded", function () {
                     "success",
                 );
 
-                // If the todo date matches current date, reload the list
                 if (dueDate === formattedDate) {
                     loadTodos();
                 } else {
-                    // If date is different, optionally switch to that date
                     if (
                         confirm(
                             "Todo added for a different date. View that date instead?",
                         )
                     ) {
-                        currentDate = new Date(dueDate + "T12:00:00"); // Add time to avoid timezone issues
+                        currentDate = new Date(dueDate + "T12:00:00");
                         formattedDate = formatDateForAPI(currentDate);
                         updateDateDisplay();
                         loadTodos();
 
-                        // Update calendar if it exists
                         if (typeof selectCalendarDate === "function") {
                             selectCalendarDate(currentDate);
                         }
                     }
                 }
 
-                // Refresh calendar data if available
                 if (typeof updateCalendarTodos === "function") {
-                    updateCalendarTodos();
+                    updateCalendarTodos().then(() => {
+                        if (typeof updateCalendar === "function") {
+                            updateCalendar();
+                        }
+                    });
                 }
             } catch (error) {
                 console.error("Error saving todo:", error);
@@ -437,12 +405,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Include shared todos toggle
     if (includeSharedToggle) {
         includeSharedToggle.addEventListener("change", loadTodos);
     }
 
-    // Navigation buttons
     if (prevDayBtn) {
         prevDayBtn.addEventListener("click", function () {
             currentDate.setDate(currentDate.getDate() - 1);
@@ -450,7 +416,6 @@ document.addEventListener("DOMContentLoaded", function () {
             updateDateDisplay();
             loadTodos();
 
-            // Update calendar if it exists
             if (typeof selectCalendarDate === "function") {
                 selectCalendarDate(currentDate);
             }
@@ -464,7 +429,6 @@ document.addEventListener("DOMContentLoaded", function () {
             updateDateDisplay();
             loadTodos();
 
-            // Update calendar if it exists
             if (typeof selectCalendarDate === "function") {
                 selectCalendarDate(currentDate);
             }
@@ -478,41 +442,24 @@ document.addEventListener("DOMContentLoaded", function () {
             updateDateDisplay();
             loadTodos();
 
-            // Update calendar if it exists
             if (typeof selectCalendarDate === "function") {
                 selectCalendarDate(currentDate);
             }
         });
     }
 
-    // Add keyboard navigation
     document.addEventListener("keydown", function (e) {
-        // Only respond to keyboard shortcuts if we're on the todo page
         if (!todoList) return;
 
-        // Left arrow: previous day
         if (e.key === "ArrowLeft" && !e.ctrlKey && !e.metaKey) {
             if (prevDayBtn) prevDayBtn.click();
-        }
-
-        // Right arrow: next day
-        else if (e.key === "ArrowRight" && !e.ctrlKey && !e.metaKey) {
+        } else if (e.key === "ArrowRight" && !e.ctrlKey && !e.metaKey) {
             if (nextDayBtn) nextDayBtn.click();
-        }
-
-        // "n" key: new todo
-        else if (e.key === "n" && !e.ctrlKey && !e.metaKey) {
+        } else if (e.key === "n" && !e.ctrlKey && !e.metaKey) {
             if (newTodoBtn) newTodoBtn.click();
-        }
-
-        // "t" key: today
-        else if (e.key === "t" && !e.ctrlKey && !e.metaKey) {
+        } else if (e.key === "t" && !e.ctrlKey && !e.metaKey) {
             if (todayBtn) todayBtn.click();
-        }
-
-        // "Escape" key: close active modals
-        else if (e.key === "Escape") {
-            // Check for open modals and close them
+        } else if (e.key === "Escape") {
             if (modalOverlay && modalOverlay.classList.contains("active")) {
                 closeModal();
             } else if (
@@ -521,11 +468,9 @@ document.addEventListener("DOMContentLoaded", function () {
             ) {
                 closeDeleteModal();
             } else if (document.querySelector(".share-modal-overlay.active")) {
-                // Call close share modal function if defined
                 if (typeof closeShareModal === "function") {
                     closeShareModal();
                 } else {
-                    // Fallback: directly remove the active class
                     document
                         .querySelector(".share-modal-overlay.active")
                         .classList.remove("active");
@@ -534,22 +479,18 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Set current date function (for synchronization with calendar)
     function setCurrentDate(date) {
-        // Create a new date object to avoid reference issues
         currentDate = new Date(date);
         formattedDate = formatDateForAPI(currentDate);
         updateDateDisplay();
     }
 
-    // Make functions available globally
     window.loadTodos = loadTodos;
     window.currentDate = currentDate;
     window.formattedDate = formattedDate;
     window.updateDateDisplay = updateDateDisplay;
     window.setCurrentDate = setCurrentDate;
 
-    // Initial load of todos
     if (todoList) {
         loadTodos();
     }
