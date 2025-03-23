@@ -171,6 +171,7 @@ project-root/
 ├── middleware/ # Custom middleware
 ├── config/ # Configuration
 ├── utils/ # Utility functions
+├── controllers/ # Controllers
 ├── server.js # Entry point
 └── package.json # Dependencies
 ```
