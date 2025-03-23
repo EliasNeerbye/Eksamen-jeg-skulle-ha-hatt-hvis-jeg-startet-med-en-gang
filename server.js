@@ -8,6 +8,7 @@ const path = require("path");
 
 const authRoutes = require("./routes/authRoutes");
 const todoRoutes = require("./routes/todoRoutes");
+const familyRoutes = require("./routes/familyRoutes");
 const viewRoutes = require("./routes/viewRoutes");
 const connectDB = require("./config/db");
 const { isAuthenticated } = require("./middleware/auth");
@@ -81,6 +82,7 @@ app.use(async (req, res, next) => {
 app.use("/", viewRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/todos", todoRoutes);
+app.use("/api/family", familyRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

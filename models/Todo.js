@@ -25,6 +25,16 @@ const TodoSchema = new mongoose.Schema(
             ref: "User",
             required: true,
         },
+        sharedWith: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+            },
+        ],
+        allowEdit: {
+            type: Boolean,
+            default: false,
+        },
     },
     {
         timestamps: true,
@@ -32,6 +42,7 @@ const TodoSchema = new mongoose.Schema(
 );
 
 TodoSchema.index({ owner: 1, dueDate: 1 });
+TodoSchema.index({ sharedWith: 1 });
 
 const Todo = mongoose.model("Todo", TodoSchema);
 
