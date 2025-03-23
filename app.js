@@ -49,16 +49,36 @@ const origin =
 app.use(
     cors({
         origin,
+        credentials: true,
     }),
 );
 
-// const authRoutes = require("./routes/authRoutes");
-// const todoRoutes = require("./routes/todoRoutes");
-// const getRoutes = require("./routes/getRoutes");
+const authRoutes = require("./routes/authRoutes");
+const todoRoutes = require("./routes/todoRoutes");
+const getRoutes = require("./routes/getRoutes");
+const familyRoutes = require("./routes/familyRoutes");
 
-// app.use("/", getRoutes);
-// app.use("/api/auth", authRoutes);
-// app.use("/api/todo", todoRoutes);
+app.use("/", getRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/todo", todoRoutes);
+app.use("/api/family", familyRoutes);
+
+// Health check endpoint
+app.get("/api/health", (req, res) => {
+    res.status(200).json({ status: "ok", message: "Server is running" });
+});
+
+// 404 handler for API routes
+app.use("/api/*", (req, res) => {
+    res.status(404).json({ success: false, message: "API endpoint not found" });
+});
+
+// 404 handler for page routes - render 404 page
+app.use((req, res) => {
+    res.status(404).render("404", {
+        user: req.session.userId ? { id: req.session.userId } : null,
+    });
+});
 
 app.listen(config.PORT);
 console.log(`App is running and listening on: ${origin}`);
