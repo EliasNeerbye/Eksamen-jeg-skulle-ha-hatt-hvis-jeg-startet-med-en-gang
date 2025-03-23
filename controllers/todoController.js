@@ -24,17 +24,33 @@ exports.createTodo = async (req, res) => {
 
 exports.getTodos = async (req, res) => {
     try {
+        const { startDate, endDate, includeShared } = req.query;
+
+        // Prepare query
+        let dateQuery = {};
+
+        // If date range is provided, filter by it
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            start.setHours(0, 0, 0, 0);
+
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+
+            dateQuery = { dueDate: { $gte: start, $lte: end } };
+        }
+
         // Get own todos
-        const ownTodos = await Todo.find({ owner: req.session.userId }).sort({
-            dueDate: 1,
-        });
+        const ownTodos = await Todo.find({
+            ...dateQuery,
+            owner: req.session.userId,
+        }).sort({ dueDate: 1 });
 
         // Get shared todos if includeShared is true
-        const { includeShared } = req.query;
         let sharedTodos = [];
-
         if (includeShared === "true") {
             sharedTodos = await Todo.find({
+                ...dateQuery,
                 sharedWith: req.session.userId,
             })
                 .populate("owner", "username email")

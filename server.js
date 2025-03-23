@@ -23,6 +23,12 @@ connectDB();
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
+// Set up ejs-layouts (add this to package.json dependencies: "express-ejs-layouts": "^2.5.1")
+const expressLayouts = require("express-ejs-layouts");
+app.use(expressLayouts);
+app.set("layout", "layouts/main");
+app.set("layout extractScripts", true);
+
 // Static files
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -83,6 +89,14 @@ app.use("/", viewRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/todos", todoRoutes);
 app.use("/api/family", familyRoutes);
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).render("error", {
+        title: "Page Not Found - Fiks Ferdig",
+        message: "The page you are looking for does not exist",
+    });
+});
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

@@ -1,0 +1,64 @@
+<div class="container">
+    <div class="auth-container">
+        <h2 class="auth-heading">Sign Up</h2>
+
+        <div id="feedback" class="feedback"></div>
+
+        <form id="signup-form">
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    class="form-control"
+                    required
+                    minlength="3"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="form-control"
+                    required
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="form-control"
+                    required
+                    minlength="6"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="confirm-password" class="form-label"
+                    >Confirm Password</label
+                >
+                <input
+                    type="password"
+                    id="confirm-password"
+                    name="confirm-password"
+                    class="form-control"
+                    required
+                    minlength="6"
+                />
+            </div>
+
+            <button type="submit" class="btn btn-block">Sign Up</button>
+        </form>
+
+        <div class="form-footer">
+            <p>Already have an account? <a href="/sign-in">Log In</a></p>
+        </div>
+    </div>
+</div>

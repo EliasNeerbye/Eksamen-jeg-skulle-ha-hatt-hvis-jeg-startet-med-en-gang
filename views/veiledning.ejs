@@ -1,0 +1,299 @@
+<div class="container">
+    <div class="veiledning-container">
+        <h1>Documentation</h1>
+
+        <div class="veiledning-section">
+            <h2>Server Setup</h2>
+
+            <h3>Setting up a new Linux user with SSH key authentication</h3>
+            <ol>
+                <li>
+                    <p>Create a new user:</p>
+                    <pre>sudo adduser username</pre>
+                </li>
+                <li>
+                    <p>Add the user to sudo group:</p>
+                    <pre>sudo usermod -aG sudo username</pre>
+                </li>
+                <li>
+                    <p>Switch to the new user:</p>
+                    <pre>su - username</pre>
+                </li>
+                <li>
+                    <p>Create .ssh directory and set permissions:</p>
+                    <pre>
+mkdir ~/.ssh
+chmod 700 ~/.ssh</pre
+                    >
+                </li>
+                <li>
+                    <p>Create authorized_keys file:</p>
+                    <pre>
+touch ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys</pre
+                    >
+                </li>
+                <li>
+                    <p>Add the public key to authorized_keys file:</p>
+                    <pre>nano ~/.ssh/authorized_keys</pre>
+                    <p>
+                        Paste the public key, save and exit (Ctrl+X, Y, Enter)
+                    </p>
+                </li>
+                <li>
+                    <p>
+                        Test SSH login with key authentication from another
+                        terminal
+                    </p>
+                </li>
+            </ol>
+        </div>
+
+        <div class="veiledning-section">
+            <h2>Hosting a Node Application</h2>
+
+            <h3>Prerequisites</h3>
+            <ul>
+                <li>Node.js (v14+)</li>
+                <li>npm</li>
+                <li>MongoDB</li>
+                <li>Nginx (for reverse proxy)</li>
+            </ul>
+
+            <h3>Step 1: Install dependencies</h3>
+            <pre>
+sudo apt update
+sudo apt install nodejs npm mongodb nginx</pre
+            >
+
+            <h3>Step 2: Deploy application code</h3>
+            <ol>
+                <li>
+                    <p>Clone the repository or copy files to server:</p>
+                    <pre>git clone repository_url /path/to/app</pre>
+                </li>
+                <li>
+                    <p>Install dependencies:</p>
+                    <pre>
+cd /path/to/app
+npm install</pre
+                    >
+                </li>
+                <li>
+                    <p>Create a .env file:</p>
+                    <pre>
+cp .env.example .env
+nano .env</pre
+                    >
+                    <p>Update the configuration values, save and exit</p>
+                </li>
+            </ol>
+
+            <h3>Step 3: Set up PM2 for process management</h3>
+            <pre>
+sudo npm install -g pm2
+pm2 start server.js --name "fiksferdig"
+pm2 save
+pm2 startup</pre
+            >
+
+            <h3>Step 4: Configure Nginx as reverse proxy</h3>
+            <pre>sudo nano /etc/nginx/sites-available/fiksferdig</pre>
+            <p>Add the following configuration:</p>
+            <pre>
+server {
+    listen 80;
+    server_name eksamen.yourname.ikt-fag.no;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+</pre
+            >
+            <p>Create symbolic link and reload Nginx:</p>
+            <pre>
+sudo ln -s /etc/nginx/sites-available/fiksferdig /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx</pre
+            >
+
+            <h3>Step 5: Set up SSL with Let's Encrypt</h3>
+            <pre>
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d eksamen.yourname.ikt-fag.no</pre
+            >
+        </div>
+
+        <div class="veiledning-section">
+            <h2>Security Concerns</h2>
+
+            <h3>Common Server Threats</h3>
+
+            <h4>1. Brute Force Attacks</h4>
+            <p>
+                Attackers attempt to gain access to the server by trying
+                different password combinations.
+            </p>
+            <p>
+                <strong>Protection:</strong> SSH key-based authentication,
+                disabling password authentication, and using fail2ban to block
+                repeated failed login attempts.
+            </p>
+
+            <h4>2. SQL Injection</h4>
+            <p>
+                Attackers insert malicious SQL code into input fields to
+                manipulate the database.
+            </p>
+            <p>
+                <strong>Protection:</strong> Using parameterized queries and
+                MongoDB's schema validation to prevent injection attacks.
+            </p>
+
+            <h4>3. Cross-Site Scripting (XSS)</h4>
+            <p>
+                Attackers inject client-side scripts into web pages viewed by
+                other users.
+            </p>
+            <p>
+                <strong>Protection:</strong> Always escaping user content, using
+                proper content headers, and implementing Content Security Policy
+                (CSP).
+            </p>
+
+            <h4>4. Cross-Site Request Forgery (CSRF)</h4>
+            <p>
+                Attackers trick users into performing unwanted actions on a site
+                where they're authenticated.
+            </p>
+            <p>
+                <strong>Protection:</strong> Implementing CSRF tokens for all
+                state-changing operations.
+            </p>
+
+            <h4>5. Denial of Service (DoS)</h4>
+            <p>
+                Attackers overwhelm the server with traffic, making it
+                unavailable to legitimate users.
+            </p>
+            <p>
+                <strong>Protection:</strong> Configuring rate limits, using a
+                CDN, and implementing firewall rules.
+            </p>
+
+            <h4>6. Dependency Vulnerabilities</h4>
+            <p>
+                Security vulnerabilities in third-party libraries and
+                dependencies.
+            </p>
+            <p>
+                <strong>Protection:</strong> Regularly updating dependencies and
+                using tools like npm audit to check for known vulnerabilities.
+            </p>
+        </div>
+
+        <div class="veiledning-section">
+            <h2>Authentication and Authorization</h2>
+
+            <h3>Why Authentication is Important</h3>
+            <p>
+                Authentication verifies that users are who they claim to be. In
+                our application, it:
+            </p>
+            <ul>
+                <li>Ensures only registered users can access the system</li>
+                <li>Associates todos and other content with specific users</li>
+                <li>Prevents unauthorized access to private information</li>
+                <li>Creates accountability for actions taken in the system</li>
+            </ul>
+
+            <h3>Why Authorization is Important</h3>
+            <p>
+                Authorization determines what authenticated users are allowed to
+                do. In our application, it:
+            </p>
+            <ul>
+                <li>
+                    Ensures users can only access and modify their own todos
+                </li>
+                <li>Controls which users can perform administrative actions</li>
+                <li>Manages sharing permissions between family members</li>
+                <li>
+                    Prevents unauthorized deletion or modification of shared
+                    content
+                </li>
+            </ul>
+
+            <h3>Implementation Details</h3>
+            <p>Our application implements:</p>
+            <ul>
+                <li>Session-based authentication with secure cookies</li>
+                <li>
+                    Password hashing using Argon2 (a modern, secure algorithm)
+                </li>
+                <li>Role-based access control for administrative features</li>
+                <li>Resource-based permissions for todos and shared content</li>
+                <li>HTTPS to encrypt all data in transit</li>
+            </ul>
+
+            <p>
+                Without proper authentication and authorization, our application
+                would be vulnerable to data breaches, unauthorized access, and
+                various security attacks that could compromise user data and
+                system integrity.
+            </p>
+        </div>
+
+        <div class="veiledning-section">
+            <h2>Network Diagram</h2>
+            <img
+                src="/img/network-diagram.png"
+                alt="Network diagram showing the application architecture"
+            />
+
+            <h3>ER Diagram</h3>
+            <img
+                src="/img/er-diagram.png"
+                alt="ER diagram showing the database structure"
+            />
+
+            <h3>IP Plan</h3>
+            <table class="ip-table">
+                <thead>
+                    <tr>
+                        <th>Device/Service</th>
+                        <th>IP Address</th>
+                        <th>Subnet Mask</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Nginx Web Server</td>
+                        <td>192.168.1.10</td>
+                        <td>255.255.255.0</td>
+                        <td>Public-facing web server</td>
+                    </tr>
+                    <tr>
+                        <td>Node.js Application</td>
+                        <td>127.0.0.1:3000</td>
+                        <td>255.0.0.0</td>
+                        <td>Internal service</td>
+                    </tr>
+                    <tr>
+                        <td>MongoDB Database</td>
+                        <td>127.0.0.1:27017</td>
+                        <td>255.0.0.0</td>
+                        <td>Internal database</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

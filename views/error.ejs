@@ -1,0 +1,16 @@
+<div class="container">
+    <div class="auth-container">
+        <h2 class="auth-heading">Error</h2>
+
+        <div class="error-message">
+            <p><%= message %></p>
+            <% if (locals.error) { %>
+            <pre class="error-details"><%= error %></pre>
+            <% } %>
+        </div>
+
+        <div class="form-footer">
+            <a href="/" class="btn btn-block">Back to Home</a>
+        </div>
+    </div>
+</div>
