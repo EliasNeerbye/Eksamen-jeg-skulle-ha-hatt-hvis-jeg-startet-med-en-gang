@@ -1,5 +1,4 @@
 <% if (locals.user) { %>
-<!-- User is logged in, show todo list -->
 <div class="todo-container">
     <div class="sidebar">
         <div class="calendar-section">
@@ -19,7 +18,6 @@
             </div>
 
             <div id="calendar-days" class="calendar-days">
-                <!-- Calendar days will be inserted here by JS -->
             </div>
 
             <div class="calendar-legend">
@@ -75,13 +73,11 @@
         </div>
 
         <ul id="todo-list" class="todo-list">
-            <!-- Todo items will be inserted here by JS -->
             <li class="loading">Loading todos...</li>
         </ul>
     </div>
 </div>
 
-<!-- Todo Modal -->
 <div class="modal-overlay">
     <div class="modal">
         <div class="modal-header">
@@ -136,7 +132,6 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
 <div class="modal-overlay delete-modal-overlay">
     <div class="modal delete-modal">
         <div class="modal-header">
@@ -158,7 +153,6 @@
     </div>
 </div>
 
-<!-- Share Modal -->
 <div class="modal-overlay share-modal-overlay">
     <div class="modal">
         <div class="modal-header">
@@ -167,7 +161,6 @@
         </div>
         <div class="modal-body">
             <div id="family-list-modal">
-                <!-- Family members will be inserted here by JS -->
                 <p>Loading family members...</p>
             </div>
         </div>
@@ -182,12 +175,11 @@
     </div>
 </div>
 
-<% /* Include necessary scripts */ %> <%- contentFor('scripts') %>
+<%- contentFor('scripts') %>
 <script src="/js/todos.js"></script>
 <script src="/js/calendar.js"></script>
 <script src="/js/family.js"></script>
 <% } else { %>
-<!-- User is not logged in, show landing page -->
 <section class="hero">
     <div class="container">
         <div class="hero-content">

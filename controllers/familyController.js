@@ -2,12 +2,10 @@ const User = require("../models/User");
 const FamilyMember = require("../models/FamilyMember");
 const Todo = require("../models/Todo");
 
-// Send invitation to a family member
 exports.inviteFamilyMember = async (req, res) => {
     try {
         const { email } = req.body;
 
-        // Find the user to invite
         const invitedUser = await User.findOne({ email });
 
         if (!invitedUser) {
@@ -16,14 +14,12 @@ exports.inviteFamilyMember = async (req, res) => {
                 .json({ message: "User not found with that email" });
         }
 
-        // Check if user is trying to add themselves
         if (invitedUser._id.toString() === req.session.userId) {
             return res.status(400).json({
                 message: "You cannot add yourself as a family member",
             });
         }
 
-        // Check if relationship already exists
         const existingRelationship = await FamilyMember.findOne({
             user: req.session.userId,
             familyMember: invitedUser._id,
@@ -36,7 +32,6 @@ exports.inviteFamilyMember = async (req, res) => {
             });
         }
 
-        // Create new relationship
         const familyRelationship = await FamilyMember.create({
             user: req.session.userId,
             familyMember: invitedUser._id,
@@ -55,7 +50,6 @@ exports.inviteFamilyMember = async (req, res) => {
     }
 };
 
-// Accept or reject invitation
 exports.respondToInvitation = async (req, res) => {
     try {
         const { invitationId, action } = req.body;
@@ -89,7 +83,6 @@ exports.respondToInvitation = async (req, res) => {
     }
 };
 
-// Get all pending invitations
 exports.getPendingInvitations = async (req, res) => {
     try {
         const pendingInvitations = await FamilyMember.find({
@@ -106,22 +99,18 @@ exports.getPendingInvitations = async (req, res) => {
     }
 };
 
-// Get all family members (accepted relationships)
 exports.getFamilyMembers = async (req, res) => {
     try {
-        // Find relationships where user is current user and status is accepted
         const sentRelationships = await FamilyMember.find({
             user: req.session.userId,
             status: "accepted",
         }).populate("familyMember", "username email");
 
-        // Find relationships where family member is current user and status is accepted
         const receivedRelationships = await FamilyMember.find({
             familyMember: req.session.userId,
             status: "accepted",
         }).populate("user", "username email");
 
-        // Combine and format results
         const familyMembers = [
             ...sentRelationships.map((rel) => ({
                 id: rel.familyMember._id,
@@ -146,12 +135,10 @@ exports.getFamilyMembers = async (req, res) => {
     }
 };
 
-// Remove family member relationship
 exports.removeFamilyMember = async (req, res) => {
     try {
         const { familyMemberId } = req.params;
 
-        // Find and remove relationship in either direction
         const deleted = await FamilyMember.deleteOne({
             $or: [
                 { user: req.session.userId, familyMember: familyMemberId },
@@ -166,7 +153,6 @@ exports.removeFamilyMember = async (req, res) => {
                 .json({ message: "Family member relationship not found" });
         }
 
-        // Remove sharing of todos with this family member
         await Todo.updateMany(
             { owner: req.session.userId, sharedWith: familyMemberId },
             { $pull: { sharedWith: familyMemberId } },
@@ -183,12 +169,10 @@ exports.removeFamilyMember = async (req, res) => {
     }
 };
 
-// Share a todo with family members
 exports.shareTodo = async (req, res) => {
     try {
         const { todoId, familyMemberIds, allowEdit } = req.body;
 
-        // Validate that todo exists and belongs to user
         const todo = await Todo.findOne({
             _id: todoId,
             owner: req.session.userId,
@@ -198,7 +182,6 @@ exports.shareTodo = async (req, res) => {
             return res.status(404).json({ message: "Todo not found" });
         }
 
-        // Validate that all provided IDs are accepted family members
         const familyMemberRelationships = await FamilyMember.find({
             $or: [
                 {
@@ -220,7 +203,6 @@ exports.shareTodo = async (req, res) => {
                 : rel.user.toString(),
         );
 
-        // Filter out invalid IDs
         const invalidIds = familyMemberIds.filter(
             (id) => !validFamilyMemberIds.includes(id),
         );
@@ -231,7 +213,6 @@ exports.shareTodo = async (req, res) => {
             });
         }
 
-        // Update the todo with shared users
         todo.sharedWith = familyMemberIds;
         if (allowEdit !== undefined) {
             todo.allowEdit = allowEdit;
@@ -251,7 +232,6 @@ exports.shareTodo = async (req, res) => {
     }
 };
 
-// Get todos shared with me
 exports.getSharedTodos = async (req, res) => {
     try {
         const sharedTodos = await Todo.find({

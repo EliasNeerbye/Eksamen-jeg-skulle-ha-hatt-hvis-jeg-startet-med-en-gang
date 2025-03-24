@@ -1,4 +1,3 @@
-/* Base styles and color palette */
 :root {
     --turquoise-light: #7aded9;
     --turquoise-medium: #40c4c4;
@@ -45,7 +44,6 @@ body {
     padding: 0 20px;
 }
 
-/* Header styles */
 header {
     background-color: var(--turquoise-medium);
     color: var(--white);
@@ -115,7 +113,6 @@ header {
     font-weight: 500;
 }
 
-/* Auth Forms */
 .auth-container {
     max-width: 500px;
     margin: 4rem auto;
@@ -238,7 +235,6 @@ header {
     display: block;
 }
 
-/* Todo List Styles */
 .todo-container {
     display: flex;
     max-width: 1700px;
@@ -478,7 +474,6 @@ header {
     font-weight: 500;
 }
 
-/* Calendar Styles */
 .calendar-section h2 {
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
@@ -579,7 +574,6 @@ header {
     background-color: var(--turquoise-dark);
 }
 
-/* New todo styling with count badge */
 .calendar-day.has-todos {
     border: 2px solid var(--teal-medium);
     font-weight: 600;
@@ -633,7 +627,6 @@ header {
     border: 2px solid var(--white);
 }
 
-/* Calendar Legend */
 .calendar-legend {
     display: flex;
     flex-wrap: wrap;
@@ -671,7 +664,6 @@ header {
     background-color: rgba(60, 187, 177, 0.1);
 }
 
-/* Keyboard shortcuts */
 .keyboard-shortcuts {
     margin: 1.5rem 0;
     padding: 1rem;
@@ -706,7 +698,6 @@ header {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Animation classes */
 @keyframes pulse {
     0% {
         transform: scale(1);
@@ -726,7 +717,6 @@ header {
     animation: pulse 0.5s;
 }
 
-/* Toggle for shared and completed todos */
 .toggle-container {
     display: flex;
     align-items: center;
@@ -789,7 +779,6 @@ input:checked + .toggle-slider:before {
     transform: translateX(30px);
 }
 
-/* Modal Styles */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -865,7 +854,6 @@ input:checked + .toggle-slider:before {
     gap: 1rem;
 }
 
-/* Delete Confirmation Modal */
 .delete-modal .modal-title {
     color: var(--error);
 }
@@ -888,7 +876,6 @@ input:checked + .toggle-slider:before {
     background-color: #ff4040;
 }
 
-/* Family Sharing */
 .family-list {
     margin-top: 2rem;
 }
@@ -937,7 +924,6 @@ input:checked + .toggle-slider:before {
     flex: 1;
 }
 
-/* Family Sharing Modal */
 .family-share-item {
     display: flex;
     align-items: center;
@@ -961,7 +947,6 @@ input:checked + .toggle-slider:before {
     cursor: pointer;
 }
 
-/* Veiledning Page */
 .veiledning-container {
     max-width: 900px;
     margin: 2rem auto;
@@ -1049,7 +1034,6 @@ input:checked + .toggle-slider:before {
     font-weight: 600;
 }
 
-/* Landing Page */
 .hero {
     background: linear-gradient(
         135deg,
@@ -1139,7 +1123,6 @@ input:checked + .toggle-slider:before {
     line-height: 1.7;
 }
 
-/* Media Queries */
 @media (max-width: 1200px) {
     .todo-container {
         flex-direction: column;

@@ -1,6 +1,4 @@
-// Auth related functionality
 document.addEventListener("DOMContentLoaded", function () {
-    // Handle login form submission
     const loginForm = document.getElementById("login-form");
     if (loginForm) {
         loginForm.addEventListener("submit", async function (e) {
@@ -22,17 +20,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Successful login
                     feedbackElement.textContent =
                         "Logged in successfully! Redirecting...";
                     feedbackElement.className = "feedback success";
 
-                    // Redirect to home page after a short delay
                     setTimeout(() => {
                         window.location.href = "/";
                     }, 1000);
                 } else {
-                    // Login failed
                     feedbackElement.textContent =
                         data.message ||
                         "Login failed. Please check your credentials.";
@@ -47,7 +42,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Handle signup form submission
     const signupForm = document.getElementById("signup-form");
     if (signupForm) {
         signupForm.addEventListener("submit", async function (e) {
@@ -60,7 +54,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById("confirm-password").value;
             const feedbackElement = document.getElementById("feedback");
 
-            // Validate password match
             if (password !== confirmPassword) {
                 feedbackElement.textContent = "Passwords do not match.";
                 feedbackElement.className = "feedback error";
@@ -79,17 +72,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Successful signup
                     feedbackElement.textContent =
                         "Account created successfully! Redirecting...";
                     feedbackElement.className = "feedback success";
 
-                    // Redirect to home page after a short delay
                     setTimeout(() => {
                         window.location.href = "/";
                     }, 1000);
                 } else {
-                    // Signup failed
                     feedbackElement.textContent =
                         data.message || "Signup failed. Please try again.";
                     feedbackElement.className = "feedback error";
@@ -103,7 +93,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Handle logout
     const logoutButton = document.getElementById("logout-button");
     if (logoutButton) {
         logoutButton.addEventListener("click", async function (e) {
@@ -115,7 +104,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
 
                 if (response.ok) {
-                    // Redirect to home page after logout
                     window.location.href = "/";
                 } else {
                     console.error("Logout failed");

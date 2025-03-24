@@ -138,7 +138,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const data = await response.json();
             let todos = data.combined || [];
 
-            // Filter completed todos if the toggle is unchecked
             const showCompleted =
                 showCompletedToggle && showCompletedToggle.checked;
             if (!showCompleted) {

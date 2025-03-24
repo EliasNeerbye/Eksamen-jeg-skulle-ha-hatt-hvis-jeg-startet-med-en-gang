@@ -26,10 +26,8 @@ exports.getTodos = async (req, res) => {
     try {
         const { startDate, endDate, includeShared } = req.query;
 
-        // Prepare query
         let dateQuery = {};
 
-        // If date range is provided, filter by it
         if (startDate && endDate) {
             const start = new Date(startDate);
             start.setHours(0, 0, 0, 0);
@@ -40,13 +38,11 @@ exports.getTodos = async (req, res) => {
             dateQuery = { dueDate: { $gte: start, $lte: end } };
         }
 
-        // Get own todos
         const ownTodos = await Todo.find({
             ...dateQuery,
             owner: req.session.userId,
         }).sort({ dueDate: 1 });
 
-        // Get shared todos if includeShared is true
         let sharedTodos = [];
         if (includeShared === "true") {
             sharedTodos = await Todo.find({
@@ -83,13 +79,11 @@ exports.getTodosByDate = async (req, res) => {
         const endDate = new Date(date);
         endDate.setHours(23, 59, 59, 999);
 
-        // Get own todos for the date
         const ownTodos = await Todo.find({
             owner: req.session.userId,
             dueDate: { $gte: startDate, $lte: endDate },
         }).sort({ dueDate: 1 });
 
-        // Get shared todos for the date if requested
         let sharedTodos = [];
         if (includeShared === "true") {
             sharedTodos = await Todo.find({
@@ -119,7 +113,6 @@ exports.getTodoById = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Find todo that's either owned by the user or shared with the user
         const todo = await Todo.findOne({
             _id: id,
             $or: [
@@ -134,7 +127,6 @@ exports.getTodoById = async (req, res) => {
                 .json({ message: "Todo not found or access denied" });
         }
 
-        // Add a flag to indicate if this is a shared todo
         const isOwner = todo.owner._id.toString() === req.session.userId;
         const canEdit =
             isOwner ||
@@ -167,14 +159,12 @@ exports.updateTodo = async (req, res) => {
             allowEdit,
         } = req.body;
 
-        // First find the todo to check permissions
         const todo = await Todo.findById(id);
 
         if (!todo) {
             return res.status(404).json({ message: "Todo not found" });
         }
 
-        // Check permissions
         const isOwner = todo.owner.toString() === req.session.userId;
         const canEdit =
             isOwner ||
@@ -186,16 +176,13 @@ exports.updateTodo = async (req, res) => {
             });
         }
 
-        // Prepare update object
         const updateData = { title, description, completed, dueDate };
 
-        // Only the owner can update sharing settings
         if (isOwner) {
             if (sharedWith !== undefined) updateData.sharedWith = sharedWith;
             if (allowEdit !== undefined) updateData.allowEdit = allowEdit;
         }
 
-        // Perform update
         const updatedTodo = await Todo.findByIdAndUpdate(id, updateData, {
             new: true,
             runValidators: true,
@@ -214,21 +201,18 @@ exports.deleteTodo = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // First find the todo to check permissions
         const todo = await Todo.findById(id);
 
         if (!todo) {
             return res.status(404).json({ message: "Todo not found" });
         }
 
-        // Only the owner can delete todos
         if (todo.owner.toString() !== req.session.userId) {
             return res
                 .status(403)
                 .json({ message: "Only the owner can delete a todo" });
         }
 
-        // Delete todo
         await Todo.findByIdAndDelete(id);
 
         return res.status(200).json({ message: "Todo deleted successfully" });

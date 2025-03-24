@@ -1,16 +1,12 @@
-// Family sharing functionality
 document.addEventListener("DOMContentLoaded", function () {
-    // DOM elements
     const familyList = document.getElementById("family-list");
     const pendingInvitesList = document.getElementById("pending-invites");
     const inviteForm = document.getElementById("invite-form");
     const shareModalOverlay = document.querySelector(".share-modal-overlay");
 
-    // State
     let currentTodoId = null;
     let familyMembers = [];
 
-    // Modal functions for sharing
     function openShareModal(todoId) {
         currentTodoId = todoId;
         if (shareModalOverlay) {
@@ -26,7 +22,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Attach share modal event listeners
     const closeShareModalButtons =
         document.querySelectorAll(".share-modal-close");
     if (closeShareModalButtons.length > 0) {
@@ -43,16 +38,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Load all family members for the sharing modal
     async function loadFamilyForSharing() {
         const familyListModal = document.getElementById("family-list-modal");
         if (!familyListModal) return;
 
         try {
-            // First load family members
             await loadFamilyMembers();
 
-            // Then load current sharing settings for the todo
             const response = await fetch(`/api/todos/${currentTodoId}`);
 
             if (!response.ok) {
@@ -63,7 +55,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const todo = data.todo;
             const sharedWith = todo.sharedWith || [];
 
-            // Clear existing list
             familyListModal.innerHTML = "";
 
             if (familyMembers.length === 0) {
@@ -72,7 +63,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            // Populate family members with checkboxes
             familyMembers.forEach((member) => {
                 const isShared = sharedWith.includes(member.id);
 
@@ -94,7 +84,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 familyListModal.appendChild(memberItem);
             });
 
-            // Add allow-edit checkbox
             const allowEditContainer = document.createElement("div");
             allowEditContainer.className = "form-group";
 
@@ -120,7 +109,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Save sharing settings
     async function saveSharing() {
         if (!currentTodoId) return;
 
@@ -165,7 +153,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Show feedback message
     function showFeedback(message, type) {
         const feedbackElement = document.createElement("div");
         feedbackElement.className = `feedback ${type}`;
@@ -178,19 +165,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.body.appendChild(feedbackElement);
 
-        // Remove the feedback element after 3 seconds
         setTimeout(() => {
             feedbackElement.remove();
         }, 3000);
     }
 
-    // Save sharing button
     const saveShareBtn = document.getElementById("save-share-btn");
     if (saveShareBtn) {
         saveShareBtn.addEventListener("click", saveSharing);
     }
 
-    // Add share buttons to todos
     function addShareButtons() {
         const todoItems = document.querySelectorAll(
             ".todo-item:not(.todo-shared)",
@@ -200,7 +184,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const todoId = item.dataset.id;
             const actionsDiv = item.querySelector(".todo-actions");
 
-            // Check if share button already exists
             if (actionsDiv && !actionsDiv.querySelector(".share-btn")) {
                 const shareBtn = document.createElement("button");
                 shareBtn.className = "share-btn";
@@ -215,7 +198,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Load family members
     async function loadFamilyMembers() {
         if (!familyList && !document.getElementById("family-list-modal"))
             return;
@@ -230,9 +212,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const data = await response.json();
             familyMembers = data.familyMembers || [];
 
-            // Update family list if on family page
             if (familyList) {
-                // Clear existing list
                 familyList.innerHTML = "";
 
                 if (familyMembers.length === 0) {
@@ -241,7 +221,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-                // Add family members to the list
                 familyMembers.forEach((member) => {
                     const memberItem = document.createElement("div");
                     memberItem.className = "family-item";
@@ -291,7 +270,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Load pending invitations
     async function loadPendingInvites() {
         if (!pendingInvitesList) return;
 
@@ -305,7 +283,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const data = await response.json();
             const pendingInvitations = data.pendingInvitations || [];
 
-            // Clear existing list
             pendingInvitesList.innerHTML = "";
 
             if (pendingInvitations.length === 0) {
@@ -313,7 +290,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            // Add invitations to the list
             pendingInvitations.forEach((invite) => {
                 const inviteItem = document.createElement("div");
                 inviteItem.className = "invite-item";
@@ -356,7 +332,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Send invitation to family member
     async function inviteFamilyMember(email) {
         try {
             const response = await fetch("/api/family/invite", {
@@ -372,7 +347,6 @@ document.addEventListener("DOMContentLoaded", function () {
             if (response.ok) {
                 showFeedback("Invitation sent successfully", "success");
 
-                // Clear the form
                 const inviteInput = document.getElementById("invite-email");
                 if (inviteInput) {
                     inviteInput.value = "";
@@ -389,7 +363,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Respond to invitation
     async function respondToInvite(invitationId, action) {
         try {
             const response = await fetch("/api/family/respond", {
@@ -404,7 +377,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw new Error("Failed to respond to invitation");
             }
 
-            // Show feedback
             showFeedback(
                 `Invitation ${
                     action === "accepted" ? "accepted" : "rejected"
@@ -412,7 +384,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 "success",
             );
 
-            // Reload invitations and family members
             loadPendingInvites();
             loadFamilyMembers();
         } catch (error) {
@@ -424,7 +395,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Remove family member
     async function removeFamilyMember(familyMemberId) {
         if (!confirm("Are you sure you want to remove this family member?")) {
             return;
@@ -442,10 +412,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw new Error("Failed to remove family member");
             }
 
-            // Show feedback
             showFeedback("Family member removed successfully", "success");
 
-            // Reload family members
             loadFamilyMembers();
         } catch (error) {
             console.error("Error removing family member:", error);
@@ -456,7 +424,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Handle invite form submission
     if (inviteForm) {
         inviteForm.addEventListener("submit", function (e) {
             e.preventDefault();
@@ -466,19 +433,15 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Initial load
     loadFamilyMembers();
     loadPendingInvites();
 
-    // Add share buttons to todos when they're loaded
-    // We'll use a MutationObserver to detect when todos are added to the DOM
     if (document.getElementById("todo-list")) {
         const todoListObserver = new MutationObserver(addShareButtons);
         todoListObserver.observe(document.getElementById("todo-list"), {
             childList: true,
         });
 
-        // Also add share buttons initially if todos are already present
         addShareButtons();
     }
 });

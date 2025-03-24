@@ -8,7 +8,6 @@
             %>
         </title>
         <link rel="stylesheet" href="/css/style.css" />
-        <!-- Include Font Awesome for icons -->
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -64,10 +63,8 @@
 
         <main><%- body %></main>
 
-        <!-- Common JavaScript -->
         <script src="/js/auth.js"></script>
 
-        <!-- Page-specific JavaScript -->
         <% if (typeof scripts !== 'undefined') { %> <% if
         (Array.isArray(scripts)) { %> <% scripts.forEach(function(script) { %>
         <script src="<%= script %>"></script>
@@ -75,7 +72,6 @@
         <script src="<%= scripts %>"></script>
         <% } %> <% } %>
 
-        <!-- Content for script section -->
         <%- typeof script !== 'undefined' ? script : '' %>
     </body>
 </html>
