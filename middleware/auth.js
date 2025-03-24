@@ -20,8 +20,7 @@ const isAdmin = async (req, res, next) => {
     try {
         const user = await User.findById(req.session.userId);
 
-        // Simple admin check (in a real app, you'd have proper roles)
-        if (!user || user.username !== "admin") {
+        if (!user || user.role !== "admin") {
             return res.status(403).render("error", {
                 title: "Feil",
                 message: "Unauthorized - Admin access required",

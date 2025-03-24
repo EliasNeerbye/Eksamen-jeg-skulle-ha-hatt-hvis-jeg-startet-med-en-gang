@@ -161,7 +161,7 @@ header {
 .btn {
     display: inline-block;
     padding: 0.9rem 1.5rem;
-    background-color: var(--turquoise-medium);
+    background-color: var(--purple-medium);
     color: var(--white);
     border: none;
     border-radius: 8px;
@@ -173,7 +173,7 @@ header {
 }
 
 .btn:hover {
-    background-color: var(--turquoise-dark);
+    background-color: var(--purple-dark);
     transform: translateY(-2px);
 }
 
@@ -201,7 +201,7 @@ header {
 }
 
 .form-footer a {
-    color: var(--turquoise-dark);
+    color: var(--white);
     text-decoration: none;
     font-weight: 500;
 }
@@ -631,7 +631,6 @@ header {
 
 .calendar-day.today.active {
     border: 2px solid var(--white);
-    background-color: var(--purple-medium);
 }
 
 /* Calendar Legend */
