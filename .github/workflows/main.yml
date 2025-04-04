@@ -1,0 +1,46 @@
+name: Clone and PM2 Restart
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual triggering
+
+# Ensure only one workflow runs at a time
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+
+# Define environment variables
+env:
+  TARGET_DIR: /home/administrator/Eksamen-jeg-skulle-ha-hatt-hvis-jeg-startet-med-en-gang
+
+jobs:
+  deploy:
+    name: Clone and Restart PM2
+    runs-on: self-hosted
+    timeout-minutes: 10  # Set a timeout to prevent hung jobs
+
+    steps:
+      - name: Clone or update repository
+        run: |
+          if [ -d "${{ env.TARGET_DIR }}/.git" ]; then
+            echo "Repository exists, performing update..."
+            cd ${{ env.TARGET_DIR }}
+            git fetch --all
+            git reset --hard origin/main
+          else
+            echo "Repository doesn't exist, performing clone..."
+            mkdir -p ${{ env.TARGET_DIR }}
+            git clone ${{ github.server_url }}/${{ github.repository }}.git ${{ env.TARGET_DIR }}
+          fi
+
+      - name: Restart PM2 processes
+        working-directory: ${{ env.TARGET_DIR }}
+        run: |
+          if ! command -v pm2 &> /dev/null; then
+            echo "PM2 is not installed. Installing..."
+            npm install -g pm2
+          fi
+
+          echo "Restarting PM2 processes..."
+          pm2 restart all
